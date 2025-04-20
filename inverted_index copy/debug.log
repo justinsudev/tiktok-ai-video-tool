@@ -1,0 +1,36 @@
+INFO: Starting map stage
+INFO: Finished map executions: 3
+INFO: Starting group stage
+INFO: Starting reduce stage
+INFO: Finished reduce executions: 1
+INFO: Output directory: output0
+INFO: Starting map stage
+INFO: Finished map executions: 3
+INFO: Starting group stage
+INFO: Starting reduce stage
+INFO: Finished reduce executions: 2
+INFO: Output directory: output1
+INFO: Starting map stage
+INFO: Finished map executions: 2
+INFO: Starting group stage
+INFO: Starting reduce stage
+INFO: Finished reduce executions: 4
+INFO: Output directory: output2
+INFO: Starting map stage
+INFO: Finished map executions: 4
+INFO: Starting group stage
+INFO: Starting reduce stage
+INFO: Finished reduce executions: 4
+INFO: Output directory: output3
+INFO: Starting map stage
+INFO: Finished map executions: 4
+INFO: Starting group stage
+INFO: Starting reduce stage
+INFO: Finished reduce executions: 2
+INFO: Output directory: output4
+INFO: Starting map stage
+INFO: Finished map executions: 2
+INFO: Starting group stage
+INFO: Starting reduce stage
+INFO: Finished reduce executions: 2
+INFO: Output directory: output

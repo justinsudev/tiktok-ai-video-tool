@@ -1,51 +1,72 @@
-#!/bin/bash
-#
-# Example of how to chain MapReduce jobs together.  The output of one
-# job is the input to the next.
-#
-# Madoop options
-# -input <directory>                            # Input directory
-# -output <directory>                           # Output directory
-# -mapper <exec_name>                           # Mapper executable
-# -reducer <exec_name>                          # Reducer executable
-# -partitioner <exec_name>                      # Optional: Partitioner executable
-
-# Stop on errors
-# See https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/
+#!/usr/bin/env bash
 set -Eeuo pipefail
 
-# Optional input directory argument
-PIPELINE_INPUT=crawl
-if [ -n "${1-}" ]; then
-  PIPELINE_INPUT="$1"
-fi
+# ─── CONFIGURATION ────────────────────────────────────────────────────────────
+INPUT_DIR=${1:-crawl}
 
-# Print commands
-set -x
+DOC_COUNT_DIR=output0
+PARSE_DIR=output1
+TF_DIR=output2
+IDF_DIR=output3
+DOC_NORM_DIR=output4
+INDEX_DIR=output
 
-# Remove output directories
-rm -rf output output[0-9]
+# ─── CLEAN OLD OUTPUTS ────────────────────────────────────────────────────────
+rm -rf output output[0-9] total_document_count.txt map4.log
 
-# Job 0: Document Count (this job is not part of the pipeline)
+# ─── JOB 0: COUNT DOCUMENTS ───────────────────────────────────────────────────
 madoop \
-  -input ${PIPELINE_INPUT} \
-  -output output0 \
-  -mapper ./map0.py \
-  -reducer ./reduce0.py
+  -input   "$INPUT_DIR" \
+  -output  "$DOC_COUNT_DIR" \
+  -mapper  ./map0.py \
+  -reducer ./reduce0.py \
+  -numReduceTasks 1
 
-# Copy document count to a separate file
-cp output0/part-00000 total_document_count.txt
+cp "$DOC_COUNT_DIR"/part-00000 total_document_count.txt
 
-# Job 1: Parsing
+# ─── JOB 1: PARSE DOCS ─────────────────────────────────────────────────────────
 madoop \
-  -input ${PIPELINE_INPUT} \
-  -output output1 \
-  -mapper ./map1.py \
+  -input   "$INPUT_DIR" \
+  -output  "$PARSE_DIR" \
+  -mapper  ./map1.py \
   -reducer ./reduce1.py
 
-# Job 2
+# ─── JOB 2: TERM FREQUENCIES ───────────────────────────────────────────────────
 madoop \
-  -input output1 \
-  -output output2 \
-  -mapper ./map2.py \
+  -input   "$PARSE_DIR" \
+  -output  "$TF_DIR" \
+  -mapper  ./map2.py \
   -reducer ./reduce2.py
+
+# ─── JOB 3: DF → IDF & ATTACH ──────────────────────────────────────────────────
+madoop \
+  -input   "$TF_DIR" \
+  -output  "$IDF_DIR" \
+  -mapper  ./map3.py \
+  -reducer ./reduce3.py
+
+printf '*** job 4: doc normalisations (1 reducer) ***\n'
+madoop -input output3 -output output4 \
+       -mapper ./map4.py \
+       -reducer ./reduce4.py \
+       -numReduceTasks 1
+
+# ─── JOB 5: FINAL INDEX SHARDS (docid%3) ───────────────────────────────────────
+madoop \
+  -input       "$DOC_NORM_DIR" \
+  -output      "$INDEX_DIR" \
+  -mapper      ./map5.py \
+  -reducer     ./reduce5.py \
+  -partitioner ./partition.py \
+  -numReduceTasks 3
+
+# ─── COPY INTO index_server FOR TESTS ──────────────────────────────────────────
+TARGET=../index_server/index/inverted_index
+mkdir -p "$TARGET"
+i=0
+for part in "$INDEX_DIR"/part-*; do
+  cp "$part" "$TARGET"/inverted_index_${i}.txt
+  ((i++))
+done
+
+echo 'Pipeline complete.'

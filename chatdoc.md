@@ -5,7 +5,7 @@
 ### What is your comfort level with reading and using developer documentation? {: #Q1}
 - [ ] Very low
 - [ ] Low
-- [ ] Neutral
+- [x] Neutral
 - [ ] High
 - [ ] Very high
 
@@ -13,7 +13,7 @@
 - [ ] Never
 - [ ] Rarely
 - [ ] Sometimes
-- [ ] Often
+- [x] Often
 - [ ] Always
 
 ### How often do you rely on GenAI tools, like ChatGPT, to learn new libraries? {: #Q3}
@@ -21,37 +21,37 @@
 - [ ] Rarely
 - [ ] Sometimes
 - [ ] Often
-- [ ] Always
+- [x] Always
 
 ## General
 
 ### This tool was helpful for navigating documentation. {: #Q4}
 - [ ] Strongly disagree
 - [ ] Disagree
-- [ ] Neutral
+- [x] Neutral
 - [ ] Agree
 - [ ] Strongly agree
 
 ### This tool encouraged me to read documentation. {: #Q5}
 - [ ] Strongly disagree
 - [ ] Disagree
-- [ ] Neutral
+- [x] Neutral
 - [ ] Agree
 - [ ] Strongly agree
 
 ### My comfort level with reading developer documentation increased after using this tool. {: #Q6}
 - [ ] Strongly disagree
 - [ ] Disagree
-- [ ] Neutral
+- [x] Neutral
 - [ ] Agree
 - [ ] Strongly agree
 
 ### Compared to GenAI tools like ChatGPT, how many prompts did it take to get your answer? {: #Q7}
 - [ ] Significantly more
-- [ ] Slightly more
+- [x] Slightly more
 - [ ] About the same
 - [ ] Slightly less
 - [ ] Significantly less
 
 #### (Optional) Overall, do you have any feedback on the bot? {: #Q8}
-FIXME
+Not really, our group did not really use the bot.
