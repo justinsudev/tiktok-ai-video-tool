@@ -1,1 +1,0 @@
-44664014tVector space model Vector space model Vector space model or term vector model is an algebraic model for representing text documents (and any objects, in general) as vectors of identifiers (such as index terms). Authors: Maya Baveja and Melina O'Dell

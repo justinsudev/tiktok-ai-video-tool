@@ -2,40 +2,230 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>ask485</title>
+  <title>SemanticSearch485 - Enhanced Search Engine</title>
   <link rel="stylesheet"
         href="{{ url_for('static', filename='css/style.css') }}">
-  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-  <div class="feed">
-    <div class="ask485">ask485</div>
-    <form action="/" method="GET" class="search_bar">
-      <input type="text" name="q" value="{{ q }}" placeholder="Enter query…"/>
-      <div class="pagerank_weight">PageRank Weight</div>
-      <input type="range" name="w"
-             min="0" max="1" step="0.01"
-             value="{{ '{:.2f}'.format(w) }}"/>
-      <input type="submit" value="Search"/>
-    </form>
+  <div class="main-container">
+    <header class="header">
+      <div class="brand">
+        <i class="fas fa-brain"></i>
+        <span class="brand-text">SemanticSearch485</span>
+      </div>
+      <div class="subtitle">Enhanced search engine with semantic understanding</div>
+    </header>
 
-    <div class="docs">
-      {% if results %}
-        {% for doc in results %}
-          <div class="doc">
-            <a href="{{ doc.url }}"
-               class="doc_url">{{ doc.url|replace('%22','"') }}</a>
-            <div class="doc_title">{{ doc.title }}</div>
-            <div class="doc_summary">
-              {{ doc.summary or 'No summary available' }}
+    <main class="search-section">
+      <form action="/" method="GET" class="search-form">
+        <!-- Search Input -->
+        <div class="search-input-container">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" name="q" value="{{ q }}" 
+                 placeholder="Search with natural language or keywords..."
+                 class="search-input"/>
+        </div>
+
+        <!-- Enhanced Controls -->
+        <div class="search-controls">
+          <!-- Search Mode Selection -->
+          <div class="control-group">
+            <label class="control-label">
+              <i class="fas fa-cogs"></i> Search Mode
+            </label>
+            <div class="search-mode-buttons">
+              <input type="radio" name="semantic" value="traditional" id="mode-traditional"
+                     {% if search_mode == "traditional" %}checked{% endif %}>
+              <label for="mode-traditional" class="mode-button">
+                <i class="fas fa-list"></i> Traditional
+              </label>
+
+              <input type="radio" name="semantic" value="semantic" id="mode-semantic"
+                     {% if search_mode == "semantic" %}checked{% endif %}
+                     {% if not search_metadata.semantic_available %}disabled{% endif %}>
+              <label for="mode-semantic" class="mode-button {% if not search_metadata.semantic_available %}disabled{% endif %}">
+                <i class="fas fa-brain"></i> Semantic
+              </label>
+
+              <input type="radio" name="semantic" value="hybrid" id="mode-hybrid"
+                     {% if search_mode == "hybrid" %}checked{% endif %}
+                     {% if not search_metadata.semantic_available %}disabled{% endif %}>
+              <label for="mode-hybrid" class="mode-button {% if not search_metadata.semantic_available %}disabled{% endif %}">
+                <i class="fas fa-layer-group"></i> Hybrid
+              </label>
             </div>
+            {% if not search_metadata.semantic_available %}
+            <div class="semantic-notice">
+              <i class="fas fa-info-circle"></i>
+              Semantic search is initializing. Traditional search is available.
+            </div>
+            {% endif %}
           </div>
-        {% endfor %}
-      {% else %}
-        <div class="no_results">No search results found!</div>
+
+          <!-- PageRank Weight -->
+          <div class="control-group">
+            <label class="control-label">
+              <i class="fas fa-balance-scale"></i> PageRank Weight
+            </label>
+            <div class="slider-container">
+              <span class="slider-label">TF-IDF</span>
+              <input type="range" name="w"
+                     min="0" max="1" step="0.01"
+                     value="{{ '{:.2f}'.format(w) }}"
+                     class="weight-slider"
+                     id="weight-slider"/>
+              <span class="slider-label">PageRank</span>
+            </div>
+            <div class="weight-display">Weight: <span id="weight-value">{{ '{:.2f}'.format(w) }}</span></div>
+          </div>
+        </div>
+
+        <!-- Search Button -->
+        <div class="search-button-container">
+          <button type="submit" class="search-button">
+            <i class="fas fa-search"></i> Search
+          </button>
+        </div>
+      </form>
+
+      <!-- Search Mode Info -->
+      {% if q %}
+      <div class="search-info">
+        <div class="search-stats">
+          <i class="fas fa-chart-line"></i>
+          Showing results using <strong>{{ search_mode.title() }}</strong> search
+          {% if results %}({{ results|length }} results){% endif %}
+        </div>
+        {% if search_mode == "semantic" %}
+        <div class="mode-description">
+          <i class="fas fa-lightbulb"></i>
+          Semantic search understands meaning and context, not just keywords
+        </div>
+        {% elif search_mode == "hybrid" %}
+        <div class="mode-description">
+          <i class="fas fa-magic"></i>
+          Hybrid search combines traditional keyword matching with semantic understanding
+        </div>
+        {% endif %}
+      </div>
       {% endif %}
-    </div>
+    </main>
+
+    <!-- Results Section -->
+    <section class="results-section">
+      {% if results %}
+        <div class="results-container">
+          {% for doc in results %}
+            <article class="result-card">
+              <div class="result-header">
+                <h2 class="result-title">
+                  <a href="{{ doc.url }}" target="_blank">{{ doc.title }}</a>
+                </h2>
+                <div class="result-score">
+                  <i class="fas fa-star"></i>
+                  Score: {{ "%.3f"|format(doc.score) }}
+                </div>
+              </div>
+              <div class="result-url">
+                <i class="fas fa-link"></i>
+                <a href="{{ doc.url }}" target="_blank" class="url-link">
+                  {{ doc.url|replace('%22','"')
+                    |replace('%20',' ')
+                    |replace('%27',"'")
+                    |replace('%28','(')
+                    |replace('%29',')')
+                    |replace('%2C',',')
+                    |replace('%3A',':')
+                    |replace('%3F','?') }}
+                </a>
+              </div>
+              <div class="result-summary">
+                {{ doc.summary or 'No summary available' }}
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% elif q %}
+        <div class="no-results">
+          <div class="no-results-icon">
+            <i class="fas fa-search-minus"></i>
+          </div>
+          <h3>No results found</h3>
+          <p>Try adjusting your search terms or using a different search mode.</p>
+          {% if search_mode != "semantic" and search_metadata.semantic_available %}
+          <div class="search-suggestion">
+            <a href="?q={{ q }}&w={{ w }}&semantic=semantic" class="suggestion-link">
+              <i class="fas fa-brain"></i> Try Semantic Search
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      {% else %}
+        <div class="welcome-message">
+          <div class="welcome-icon">
+            <i class="fas fa-rocket"></i>
+          </div>
+          <h2>Welcome to SemanticSearch485</h2>
+          <p>Experience the power of semantic search - understanding queries by meaning, not just keywords.</p>
+          <ul class="feature-list">
+            <li><i class="fas fa-check"></i> <strong>Traditional Search:</strong> Fast keyword-based TF-IDF ranking</li>
+            <li><i class="fas fa-check"></i> <strong>Semantic Search:</strong> AI-powered understanding of query intent</li>
+            <li><i class="fas fa-check"></i> <strong>Hybrid Search:</strong> Best of both worlds combined</li>
+          </ul>
+        </div>
+      {% endif %}
+    </section>
+
+    <footer class="footer">
+      <div class="footer-content">
+        <p>&copy; 2024 SemanticSearch485 - Enhanced with AI-powered semantic understanding</p>
+        <div class="tech-stack">
+          <span>Powered by:</span>
+          <span class="tech-item"><i class="fab fa-python"></i> Python</span>
+          <span class="tech-item"><i class="fas fa-brain"></i> Transformers</span>
+          <span class="tech-item"><i class="fas fa-database"></i> TF-IDF</span>
+          <span class="tech-item"><i class="fas fa-chart-line"></i> PageRank</span>
+        </div>
+      </div>
+    </footer>
   </div>
+
+  <!-- Interactive JavaScript -->
+  <script>
+    // Update weight display in real-time
+    const weightSlider = document.getElementById('weight-slider');
+    const weightValue = document.getElementById('weight-value');
+    
+    if (weightSlider && weightValue) {
+      weightSlider.addEventListener('input', function() {
+        weightValue.textContent = parseFloat(this.value).toFixed(2);
+      });
+    }
+
+    // Auto-submit form when search mode changes (optional enhancement)
+    const modeButtons = document.querySelectorAll('input[name="semantic"]');
+    modeButtons.forEach(button => {
+      button.addEventListener('change', function() {
+        if (document.querySelector('input[name="q"]').value.trim()) {
+          // Auto-submit if there's a query
+          // document.querySelector('.search-form').submit();
+        }
+      });
+    });
+
+    // Add loading state to search button
+    const searchForm = document.querySelector('.search-form');
+    const searchButton = document.querySelector('.search-button');
+    
+    if (searchForm && searchButton) {
+      searchForm.addEventListener('submit', function() {
+        searchButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...';
+        searchButton.disabled = true;
+      });
+    }
+  </script>
 </body>
 </html>

@@ -1,7 +1,5 @@
+"""Configuration for the Search server."""
 import os
-"""
-Configuration for the Search server.
-"""
 
 # List of Index‐segment API URLs that the Search server will query.
 # Tests may override this variable to point at different ports.

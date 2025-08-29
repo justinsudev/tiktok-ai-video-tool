@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 -u
+#!/usr/bin/env python3
 r"""
 Custom Partitioner for Final Inverted Index Segmentation.
 

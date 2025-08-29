@@ -32,8 +32,11 @@ for line in sys.stdin:
     soup = bs4.BeautifulSoup(HTML, "html.parser")
 
     # Get docid from document
-    doc_id = soup.find("meta", attrs={"eecs485_docid": True})
-    get_doc_id = doc_id.get("eecs485_docid")
+    doc_id_element = soup.find("meta", attrs={"eecs485_docid": True})
+    if doc_id_element is None:
+        # Skip documents without a docid
+        continue
+    doc_id = doc_id_element.get("eecs485_docid")
 
     # Parse content from document
     # get_text() will strip extra whitespace and
@@ -43,4 +46,4 @@ for line in sys.stdin:
     # Remove extra newlines
     content = content.replace("\n", "")
 
-    print(f"{get_doc_id}\t{content}")
+    print(f"{doc_id}\t{content}")

@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+# bin/setup_semantic - Setup script for semantic search capabilities
+# This script installs dependencies and initializes semantic search
+
+set -e  # Exit on any error
+
+echo "Setting up SemanticSearch485 enhancements..."
+
+# Check if we're in the right directory
+if [ ! -f "requirements.txt" ]; then
+    echo "Error: Must be run from project root directory"
+    exit 1
+fi
+
+# Install Python dependencies
+echo "Installing Python dependencies..."
+pip install -r requirements.txt
+
+# Check if database exists
+DB_PATH="var/search.sqlite3"
+if [ ! -f "$DB_PATH" ]; then
+    echo "Building search database..."
+    ./bin/searchdb
+fi
+
+# Build semantic embeddings
+echo "Initializing semantic search (this may take a few minutes)..."
+python3 << 'EOF'
+import os
+import sys
+sys.path.insert(0, 'index_server')
+
+from index.semantic_search import initialize_semantic_search
+
+# Determine paths
+index_dir = "index_server/index"
+db_path = "var/search.sqlite3"
+
+# Create index directory if it doesn't exist
+os.makedirs(index_dir, exist_ok=True)
+
+try:
+    print("Building semantic embeddings for documents...")
+    initialize_semantic_search(index_dir, db_path)
+    print("✓ Semantic search initialized successfully!")
+except Exception as e:
+    print(f"Warning: Could not initialize semantic search: {e}")
+    print("Semantic search will be available but may need manual initialization.")
+EOF
+
+echo "✓ Setup complete!"
+echo ""
+echo "To start the enhanced search engine:"
+echo "  1. Start index servers: ./bin/index start"
+echo "  2. Start search server: ./bin/search start"
+echo "  3. Open browser to: http://localhost:8000"
+echo ""
+echo "Features available:"
+echo "  • Traditional TF-IDF search"
+echo "  • Semantic search with AI understanding"
+echo "  • Hybrid search combining both approaches"
+echo "  • Enhanced modern UI"

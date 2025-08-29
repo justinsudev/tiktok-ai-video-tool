@@ -1,11 +1,19 @@
+"""
+Database model for the Search server.
+
+This module provides functions for database connection management
+and document metadata retrieval.
+"""
 import sqlite3
 from flask import current_app, g
 
 
 def get_db():
     """
-    Open a new database connection if there is none yet for the
-    current application context.
+    Open new database connection if none yet for current application context.
+
+    Returns:
+        SQLite connection object with row factory set to sqlite3.Row.
     """
     if 'db' not in g:
         # Connect and set row factory for dict-like access
@@ -17,9 +25,12 @@ def get_db():
     return g.db
 
 
-def close_db(error=None):
+def close_db(_=None):
     """
     Close the database connection for the current application context.
+
+    Args:
+        _: Ignored parameter, here for Flask teardown_appcontext compatibility
     """
     db = g.pop('db', None)
     if db is not None:
@@ -29,6 +40,9 @@ def close_db(error=None):
 def init_app(app):
     """
     Register application teardown to close the database connection.
+
+    Args:
+        app: Flask application instance
     """
     app.teardown_appcontext(close_db)
 
@@ -36,8 +50,13 @@ def init_app(app):
 def get_doc(docid: int) -> dict:
     """
     Fetch the document metadata (title, url, summary) for the given docid.
-    Returns a dict with keys 'title', 'url', and 'summary'.
-    If no row is found, returns empty strings for fields.
+
+    Args:
+        docid: Document ID to look up
+
+    Returns:
+        A dict with keys 'title', 'url', and 'summary'.
+        If no row is found, returns empty strings for fields.
     """
     db = get_db()
     row = db.execute(

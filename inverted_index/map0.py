@@ -12,6 +12,7 @@ Output: Key: None, Value: "1" for each document
 import sys
 
 for line in sys.stdin:
-    # Case‑insensitive match for the DOCUMENT boundary
+    # Case‑insensitive match for the DOCTYPE declaration
     if "<!doctype html" in line.lower():
+        # Emit 1 for each document found
         print("1")

@@ -17,12 +17,18 @@ CURRENT_LINE = ""
 
 for line in sys.stdin:
     # each line is "seg\tterm idf docid tf norm"
-    # Get everything after the tab
-    _, rest = line.rstrip("\n").partition("\t")[::2]
-    parts = rest.split()
+    parts = line.rstrip("\n").split("\t")
+    if len(parts) < 2:
+        continue  # Skip malformed lines
 
-    term, idf = parts[0], parts[1]
-    docid, tf, norm = parts[2], parts[3], parts[4]
+    # Get everything after the tab
+    rest = parts[1]
+    rest_parts = rest.split()
+    if len(rest_parts) < 5:
+        continue  # Skip malformed lines
+
+    term, idf = rest_parts[0], rest_parts[1]
+    docid, tf, norm = rest_parts[2], rest_parts[3], rest_parts[4]
 
     if term != CURRENT_TERM:
         # Emit the previous term's line

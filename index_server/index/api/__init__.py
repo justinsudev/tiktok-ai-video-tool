@@ -1,7 +1,8 @@
 """
-API package for the Index server.
+API module for the index server.
+
+This module contains the API endpoints for the index server.
 """
-# Import and expose functions/objects from main
 from .main import api_blueprint, load_index
 
 # Export these names

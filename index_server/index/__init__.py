@@ -1,9 +1,8 @@
-"""
-Index server package.
-"""
+"""Index server package."""
 import os
-from flask import Flask
 from pathlib import Path
+from index.api.main import api_blueprint, load_index
+from flask import Flask
 
 # Create the Flask app
 app = Flask(__name__)
@@ -15,8 +14,6 @@ app.config["INDEX_PATH"] = os.getenv(
     str(INDEX_DIR/"inverted_index_1.txt")  # Default value
 )
 
-# Import directly from the module
-from index.api.main import api_blueprint, load_index
 
 # Register the blueprint
 app.register_blueprint(api_blueprint, url_prefix="/api/v1")

@@ -1,0 +1,71 @@
+# Large files and archives
+*.tar.xz
+*.tar.gz
+*.zip
+*.7z
+
+# Output files and temporary data
+inverted_index/output*/
+inverted_index/output*/
+inverted_index/job*.txt
+inverted_index/debug*.log
+inverted_index/debug*.stderr
+inverted_index/debug*.stdout
+
+# Log files
+*.log
+debug.log
+pipeline.log
+
+# Python cache and virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Database files (if you want to exclude them)
+# var/search.sqlite3
+
+# Semantic search embeddings (can be regenerated)
+index_server/index/semantic_embeddings.npy
+index_server/index/semantic_metadata.pkl
+
+# Test data and temporary files
+test_debug/
+example_output/
+input5/
+output0/
+output1/
+output2/
+output3/
+output4/
+
+# Large crawl files (keep only a sample)
+inverted_index/crawl/*.html
+!inverted_index/crawl/example_crawl/
+
+# Keep example files for demonstration
+!inverted_index/example_crawl/
+!inverted_index/example_output/

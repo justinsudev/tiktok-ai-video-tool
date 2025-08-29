@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+
+# bin/search — control script for Search server
+
+LOG_DIR="var/log"
+LOG_FILE="$LOG_DIR/search.log"
+DB_PATH="var/search.sqlite3"
+SEARCH_SERVER_CMD="flask --app search run --host 0.0.0.0 --port 8000"
+
+start() {
+    # Check if database exists
+    if [ ! -f "$DB_PATH" ]; then
+        echo "Error: can't find search database $DB_PATH"
+        echo "Try: ./bin/searchdb"
+        return 1
+    fi
+
+    # Check if index server is running
+    if ! ./bin/index status >/dev/null 2>&1; then
+        echo "Error: index server is not running"
+        echo "Try ./bin/index start"
+        return 1
+    fi
+
+    # Check if already running
+    if status >/dev/null 2>&1; then
+        echo "Error: search server is already running"
+        return 1
+    fi
+
+    echo "starting search server ..."
+    mkdir -p "$LOG_DIR"
+    rm -f "$LOG_FILE"
+    
+    # Start search server in background
+    $SEARCH_SERVER_CMD &> "$LOG_FILE" &
+}
+
+stop() {
+    echo "stopping search server ..."
+    # Kill the search server process (ignore errors if not running)
+    pkill -f 'flask --app search run --host 0.0.0.0 --port 8000' || true
+}
+
+restart() {
+    stop
+    start
+}
+
+status() {
+    # Check if search server is running
+    if pgrep -f 'flask --app search run --host 0.0.0.0 --port 8000' >/dev/null 2>&1; then
+        echo "search server running"
+        return 0
+    else
+        echo "search server stopped"
+        return 1
+    fi
+}
+
+case "$1" in
+    start)   start ;;
+    stop)    stop ;;
+    restart) restart ;;
+    status)  status ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|status}"
+        exit 1
+        ;;
+esac
